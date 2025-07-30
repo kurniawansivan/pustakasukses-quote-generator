@@ -1,5 +1,4 @@
 import os
-import argparse
 from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -24,21 +23,23 @@ def generate_quote():
     )
     return response.choices[0].message.content.strip()
 
-def main(n=1):
+def main():
+    try:
+        n = int(input("📌 Berapa banyak quote image yang ingin kamu buat? "))
+    except ValueError:
+        print("⚠️ Masukkan angka yang valid.")
+        return
+
     for i in range(n):
         bg_path = fetch_pexels_image(query="gradient abstract")
         if not bg_path:
-            print("❌ Failed to fetch background from Pexels.")
+            print("❌ Gagal mengambil gambar background.")
             continue
 
         quote = generate_quote()
         output_path = OUTPUT_DIR / f"quote_{i+1:03}.png"
         create_image_with_quote(quote, bg_path, output_path)
-        print(f"✅ Created: {output_path}")
+        print(f"✅ Quote #{i+1} berhasil dibuat → {output_path}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate quote images with Pexels background.")
-    parser.add_argument("--n", type=int, default=1, help="Number of quote images to generate")
-    args = parser.parse_args()
-
-    main(n=args.n)
+    main()
